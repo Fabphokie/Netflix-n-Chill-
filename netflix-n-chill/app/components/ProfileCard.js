@@ -22,7 +22,7 @@ export default function ProfileCard({ profile }) {
           alt={profile.name}
           width={150} 
           height={150} 
-          className="rounded-full border-4 border-gray-200 mb-2" // Use mb-2 for spacing below the image
+          className=" border-4 border-gray-200 mb-2" // Use mb-2 for spacing below the image
           onError={(e) => (e.currentTarget.src = '/default-image.png')}
         />
         <h3 className="text-center mt-2 text-xl font-semibold">{profile.name}</h3>

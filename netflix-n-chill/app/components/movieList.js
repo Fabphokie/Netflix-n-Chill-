@@ -1,30 +1,53 @@
 // MovieList.jsx
 import React, { useState, useEffect } from 'react';
 import ClipLoader from 'react-spinners/ClipLoader'; // Import ClipLoader from react-spinners
+import { useRouter } from 'next/router'; // Import useRouter for navigation
 
 const MovieList = () => {
-  const [movie, setMovie] = useState(null);
+  const [movies, setMovies] = useState([]); // Initialize with an array for multiple movies
   const [loading, setLoading] = useState(true);
-  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [error, setError] = useState(null); // Track any fetch errors
+  const [showFullDescription, setShowFullDescription] = useState(null); // Track which movie's description to show
+  const router = useRouter(); // Initialize the router
 
   useEffect(() => {
-    const fetchMovie = async () => {
+    const fetchMovies = async () => {
       try {
-        const response = await fetch('https://podcast-api.netlify.app/id/10716');
+        const response = await fetch('https://podcast-api.netlify.app/shows'); // Ensure this endpoint returns a list of movies
         if (!response.ok) {
           throw new Error('Failed to fetch movie details');
         }
         const data = await response.json();
-        setMovie(data);
-        setLoading(false);
+        setMovies(data); // Assuming data is an array of movies
       } catch (error) {
         console.error('Error fetching movie details:', error.message);
-        setLoading(false);
+        setError(error.message); // Set error message
+      } finally {
+        setLoading(false); // Set loading to false in both success and error cases
       }
     };
 
-    fetchMovie();
+    fetchMovies();
   }, []);
+
+  const handleSelectShow = async (showId) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`https://podcast-api.netlify.app/id/${showId}`); // Fetch detailed show data
+      if (!response.ok) {
+        throw new Error('Failed to fetch detailed show data');
+      }
+      const data = await response.json();
+      router.push({
+        pathname: '/MoviePreview', // Navigate to MoviePreview page
+        query: { showId: showId, data: JSON.stringify(data) }, // Pass showId and data as query parameters
+      });
+    } catch (error) {
+      console.error('Error fetching detailed show data:', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -34,38 +57,46 @@ const MovieList = () => {
     );
   }
 
-  if (!movie) {
-    return <p className="text-center text-white">Movie details could not be retrieved.</p>;
+  if (error) {
+    return <p className="text-center text-red-500">{error}</p>; // Display error message
   }
 
-  // Ensure properties exist and access them safely
-  const seasons = Array.isArray(movie.seasons) ? movie.seasons.length : 0; // Adjust if seasons is an array
-  const genres = Array.isArray(movie.genres) ? movie.genres.join(', ') : 'N/A'; // Adjust if genres is an array
+  if (!movies.length) {
+    return <p className="text-center text-white">No movies available.</p>;
+  }
 
   return (
     <div className="flex flex-col items-center">
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md">
-        <img
-          className="w-full h-auto rounded-md"
-          src={movie.image}
-          alt={`${movie.title} poster`}
-        />
-        <div className="mt-4">
-          <h2 className="text-2xl font-bold text-white">{movie.title}</h2>
-          <p className="text-gray-300 mt-2">Seasons: {seasons}</p>
-          <p className="text-gray-300">Last Updated: {movie.updated}</p>
-          <p className="text-gray-300">Genres: {genres}</p>
-          <p className="text-gray-400 mt-2">
-            {showFullDescription ? movie.description : `${movie.description.slice(0, 100)}...`}
-          </p>
-          <button
-            onClick={() => setShowFullDescription(!showFullDescription)}
-            className="mt-4 text-blue-500 hover:underline"
-          >
-            {showFullDescription ? 'Show less' : 'Show more'}
-          </button>
+      {movies.map((movie, index) => (
+        <div key={movie.id} className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md mb-4">
+          <img
+            className="w-full h-auto rounded-md"
+            src={movie.image || '/path/to/fallback-image.jpg'} // Fallback image
+            alt={`${movie.title} poster`}
+          />
+          <div className="mt-4">
+            <h2 className="text-2xl font-bold text-white">{movie.title}</h2>
+            <p className="text-gray-300 mt-2">Seasons: {Array.isArray(movie.seasons) ? movie.seasons.length : 0}</p>
+            <p className="text-gray-300">Last Updated: {new Date(movie.updated).toLocaleDateString()}</p>
+            <p className="text-gray-300">Genres: {Array.isArray(movie.genres) ? movie.genres.join(', ') : 'N/A'}</p>
+            <p className="text-gray-400 mt-2">
+              {showFullDescription === index ? movie.description : `${movie.description.slice(0, 100)}...`}
+            </p>
+            <button
+              onClick={() => setShowFullDescription(showFullDescription === index ? null : index)}
+              className="mt-4 text-blue-500 hover:underline"
+            >
+              {showFullDescription === index ? 'Show less' : 'Show more'}
+            </button>
+            <button
+              onClick={() => handleSelectShow(movie.id)} // Navigate to detailed show data on button click
+              className="mt-4 text-blue-500 hover:underline"
+            >
+              View Details
+            </button>
+          </div>
         </div>
-      </div>
+      ))}
     </div>
   );
 };
