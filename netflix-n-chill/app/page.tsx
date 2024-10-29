@@ -12,11 +12,11 @@ export default function Home() {
   ];
 
   return (
-    <div>
-    {profiles.map(profile => (
-      <ProfileCard key={profile.id} profile={profile} />
-    ))}
-  </div>
-  
+    <div bg-black >
+      {profiles.map(profile => (
+        <ProfileCard key={profile.id} profile={profile} />
+      ))}
+    </div>
+
   );
 }
