@@ -8,7 +8,7 @@ export default function ProfileCard({ profile }) {
   return (
     <Link href={`/preview`} passHref>
       <div
-        className="cursor-pointer"
+        className="cursor-pointer bg-black p-4 rounded-lg text-white"
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
