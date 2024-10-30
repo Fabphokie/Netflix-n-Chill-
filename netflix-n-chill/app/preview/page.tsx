@@ -2,7 +2,7 @@
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
-import MovieList from '../components/MovieList'; // Corrected capitalization
+import MovieList from '../components/MovieList'; 
 
 export default function Previews() {
   const [searchQuery, setSearchQuery] = useState('');

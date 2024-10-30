@@ -1,64 +1,47 @@
-// MovieList.jsx
+// MovieList.js
+"use client"; // This makes sure the component is client-side
+
 import React, { useState, useEffect } from 'react';
-import ClipLoader from 'react-spinners/ClipLoader'; // Import ClipLoader from react-spinners
-import { useRouter } from 'next/router'; // Import useRouter for navigation
+import { useRouter } from 'next/navigation'; // Updated import for Next.js 13+
+import ClipLoader from 'react-spinners/ClipLoader';
 
 const MovieList = () => {
-  const [movies, setMovies] = useState([]); // Initialize with an array for multiple movies
+  const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // Track any fetch errors
-  const [showFullDescription, setShowFullDescription] = useState(null); // Track which movie's description to show
-  const router = useRouter(); // Initialize the router
+  const [error, setError] = useState(null);
+  const [showFullDescription, setShowFullDescription] = useState(null);
+  const router = useRouter(); // useRouter should now work if 'use client' is set
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch('https://podcast-api.netlify.app/shows'); // Ensure this endpoint returns a list of movies
+        const response = await fetch('https://podcast-api.netlify.app/shows');
         if (!response.ok) {
           throw new Error('Failed to fetch movie details');
         }
         const data = await response.json();
-        setMovies(data); // Assuming data is an array of movies
+        setMovies(data);
       } catch (error) {
         console.error('Error fetching movie details:', error.message);
-        setError(error.message); // Set error message
+        setError(error.message);
       } finally {
-        setLoading(false); // Set loading to false in both success and error cases
+        setLoading(false);
       }
     };
 
     fetchMovies();
   }, []);
 
-  const handleSelectShow = async (showId) => {
-    try {
-      setLoading(true);
-      const response = await fetch(`https://podcast-api.netlify.app/id/${showId}`); // Fetch detailed show data
-      if (!response.ok) {
-        throw new Error('Failed to fetch detailed show data');
-      }
-      const data = await response.json();
-      router.push({
-        pathname: '/MoviePreview', // Navigate to MoviePreview page
-        query: { showId: showId, data: JSON.stringify(data) }, // Pass showId and data as query parameters
-      });
-    } catch (error) {
-      console.error('Error fetching detailed show data:', error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <ClipLoader color="#FFFFFF" size={50} /> {/* Show loading spinner */}
+        <ClipLoader color="#FFFFFF" size={50} />
       </div>
     );
   }
 
   if (error) {
-    return <p className="text-center text-red-500">{error}</p>; // Display error message
+    return <p className="text-center text-red-500">{error}</p>;
   }
 
   if (!movies.length) {
@@ -71,7 +54,7 @@ const MovieList = () => {
         <div key={movie.id} className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md mb-4">
           <img
             className="w-full h-auto rounded-md"
-            src={movie.image || '/path/to/fallback-image.jpg'} // Fallback image
+            src={movie.image || '/path/to/fallback-image.jpg'}
             alt={`${movie.title} poster`}
           />
           <div className="mt-4">
@@ -88,8 +71,14 @@ const MovieList = () => {
             >
               {showFullDescription === index ? 'Show less' : 'Show more'}
             </button>
+            {/* Use router.push() for navigation */}
             <button
-              onClick={() => handleSelectShow(movie.id)} // Navigate to detailed show data on button click
+              onClick={() =>
+                router.push({
+                  pathname: '/MoviePreview',
+                  query: { showId: movie.id, data: JSON.stringify(movie) },
+                })
+              }
               className="mt-4 text-blue-500 hover:underline"
             >
               View Details
