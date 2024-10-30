@@ -1,6 +1,6 @@
 // pages/index.js
 'use client';
-
+import Link from 'next/link';
 import ProfileCard from '../app/components/ProfileCard';
 
 export default function Home() {
@@ -20,6 +20,11 @@ export default function Home() {
           <ProfileCard key={profile.id} profile={profile} />
         ))}
       </div>
+      <Link href="/Manage" passHref>
+        <button className="bg-transparent border border-gray-200 text-white font-semibold py-2 px-4 rounded hover:bg-gray-700 hover:border-gray-400 transition duration-200">
+          Manage Profiles
+        </button>
+      </Link>
     </div>
   );
 }
