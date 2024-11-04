@@ -13,7 +13,8 @@ export default function Home() {
 
   return (
     <div className="flex flex-col bg-black min-h-screen items-center justify-center text-white">
-      <h1 className="text-6xl mb-8">Who's watching?</h1>
+      <h1 className="text-6xl mb-8">Who&apos;s watching?</h1>
+
       
       <div className="flex space-x-4">
         {profiles.map(profile => (

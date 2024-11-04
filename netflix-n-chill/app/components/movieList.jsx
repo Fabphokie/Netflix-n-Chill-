@@ -1,16 +1,14 @@
-// MovieList.js
-"use client"; // This makes sure the component is client-side
-
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // Updated import for Next.js 13+
+import { useRouter } from 'next/navigation';
 import ClipLoader from 'react-spinners/ClipLoader';
 
-const MovieList = () => {
+// Add `searchQuery` to props
+const MovieList = ({ searchQuery }) => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showFullDescription, setShowFullDescription] = useState(null);
-  const router = useRouter(); // useRouter should now work if 'use client' is set
+  const router = useRouter();
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -48,9 +46,14 @@ const MovieList = () => {
     return <p className="text-center text-white">No movies available.</p>;
   }
 
+  // Filter movies based on the search query
+  const filteredMovies = movies.filter((movie) =>
+    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col items-center">
-      {movies.map((movie, index) => (
+      {filteredMovies.map((movie, index) => (
         <div key={movie.id} className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md mb-4">
           <img
             className="w-full h-auto rounded-md"
@@ -71,7 +74,6 @@ const MovieList = () => {
             >
               {showFullDescription === index ? 'Show less' : 'Show more'}
             </button>
-            {/* Use router.push() for navigation */}
             <button
               onClick={() =>
                 router.push({
