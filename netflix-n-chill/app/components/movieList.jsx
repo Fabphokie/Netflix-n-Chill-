@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ClipLoader from 'react-spinners/ClipLoader';
 
-// Add `searchQuery` to props
-const MovieList = ({ searchQuery }) => {
+const MovieList = ({ searchQuery = '' }) => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showFullDescription, setShowFullDescription] = useState(null);
+  const [expandedDescriptions, setExpandedDescriptions] = useState({});
   const router = useRouter();
 
   useEffect(() => {
@@ -46,15 +45,18 @@ const MovieList = ({ searchQuery }) => {
     return <p className="text-center text-white">No movies available.</p>;
   }
 
-  // Filter movies based on the search query
+  // Filter movies based on search query
   const filteredMovies = movies.filter((movie) =>
     movie.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="flex flex-col items-center">
-      {filteredMovies.map((movie, index) => (
-        <div key={movie.id} className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md mb-4">
+      {filteredMovies.map((movie) => (
+        <div
+          key={movie.id}
+          className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md mb-4"
+        >
           <img
             className="w-full h-auto rounded-md"
             src={movie.image || '/path/to/fallback-image.jpg'}
@@ -62,26 +64,39 @@ const MovieList = ({ searchQuery }) => {
           />
           <div className="mt-4">
             <h2 className="text-2xl font-bold text-white">{movie.title}</h2>
-            <p className="text-gray-300 mt-2">Seasons: {Array.isArray(movie.seasons) ? movie.seasons.length : 0}</p>
-            <p className="text-gray-300">Last Updated: {new Date(movie.updated).toLocaleDateString()}</p>
-            <p className="text-gray-300">Genres: {Array.isArray(movie.genres) ? movie.genres.join(', ') : 'N/A'}</p>
+            <p className="text-gray-300 mt-2">
+              Seasons: {Array.isArray(movie.seasons) ? movie.seasons.length : 0}
+            </p>
+            <p className="text-gray-300">
+              Last Updated: {new Date(movie.updated).toLocaleDateString()}
+            </p>
+            <p className="text-gray-300">
+              Genres:{' '}
+              {Array.isArray(movie.genres) ? movie.genres.join(', ') : 'N/A'}
+            </p>
             <p className="text-gray-400 mt-2">
-              {showFullDescription === index ? movie.description : `${movie.description.slice(0, 100)}...`}
+              {expandedDescriptions[movie.id]
+                ? movie.description
+                : `${movie.description.slice(0, 100)}...`}
             </p>
             <button
-              onClick={() => setShowFullDescription(showFullDescription === index ? null : index)}
-              className="mt-4 text-blue-500 hover:underline"
-            >
-              {showFullDescription === index ? 'Show less' : 'Show more'}
-            </button>
-            <button
               onClick={() =>
-                router.push({
-                  pathname: '/MoviePreview',
-                  query: { showId: movie.id, data: JSON.stringify(movie) },
-                })
+                setExpandedDescriptions((prev) => ({
+                  ...prev,
+                  [movie.id]: !prev[movie.id],
+                }))
               }
               className="mt-4 text-blue-500 hover:underline"
+            >
+              {expandedDescriptions[movie.id] ? 'Show less' : 'Show more'}
+            </button>
+            <button
+              onClick={() => {
+                // Store data in localStorage to avoid large query strings
+                localStorage.setItem('selectedMovie', JSON.stringify(movie));
+                router.push(`/MoviePreview?showId=${movie.id}`);
+              }}
+              className="mt-4 ml-4 text-blue-500 hover:underline"
             >
               View Details
             </button>
