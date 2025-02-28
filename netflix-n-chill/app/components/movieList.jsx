@@ -1,6 +1,9 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ClipLoader from 'react-spinners/ClipLoader';
+import Image from 'next/image';
 
 const MovieList = ({ searchQuery = '' }) => {
   const [movies, setMovies] = useState([]);
@@ -57,7 +60,7 @@ const MovieList = ({ searchQuery = '' }) => {
           key={movie.id}
           className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md mb-4"
         >
-          <img
+          <Image
             className="w-full h-auto rounded-md"
             src={movie.image || '/path/to/fallback-image.jpg'}
             alt={`${movie.title} poster`}

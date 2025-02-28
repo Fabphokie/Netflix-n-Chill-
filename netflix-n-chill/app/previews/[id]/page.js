@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ClipLoader from 'react-spinners/ClipLoader';
+import Image from 'next/image';
 
 export default function ProfilePreview() {
   const params = useParams();
@@ -67,7 +68,7 @@ export default function ProfilePreview() {
                 router.push(`/MoviePreview?showId=${movie.id}`);
               }}
             >
-              <img
+              <Image
                 className="w-full h-48 object-cover rounded-md"
                 src={movie.image || '/fallback-image.jpg'}
                 alt={movie.title}
