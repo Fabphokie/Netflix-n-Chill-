@@ -15,13 +15,12 @@ export default function Home() {
     <div className="flex flex-col bg-black min-h-screen items-center justify-center text-white">
       <h1 className="text-6xl mb-8">Who&apos;s watching?</h1>
 
-      
       <div className="flex space-x-4">
-        {profiles.map(profile => (
+        {profiles.map((profile) => (
           <ProfileCard key={profile.id} profile={profile} />
         ))}
       </div>
-      <Link href="/Manage" passHref>
+      <Link href="/manage" passHref>
         <button className="bg-transparent border border-gray-200 text-white font-semibold py-2 px-4 rounded hover:bg-gray-700 hover:border-gray-400 transition duration-200">
           Manage Profiles
         </button>
